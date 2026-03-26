@@ -1,0 +1,140 @@
+asyncapi: "2.6.0"
+info:
+  title: User Events API
+  version: "1.0.0"
+  description: A simple sample AsyncAPI for user lifecycle events
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  production:
+    url: broker.example.com:9092
+    protocol: kafka
+    description: Production Kafka broker
+channels:
+  user/signedup:
+    description: Channel for user sign-up events
+    subscribe:
+      summary: Receive notifications when a user signs up
+      operationId: onUserSignedUp
+      message:
+        $ref: "#/components/messages/UserSignedUp"
+  user/deleted:
+    description: Channel for user deletion events
+    subscribe:
+      summary: Receive notifications when a user is deleted
+      operationId: onUserDeleted
+      message:
+        $ref: "#/components/messages/UserDeleted"
+  user/commands:
+    description: Channel for sending user-related commands
+    publish:
+      summary: Send a command to create or update a user
+      operationId: sendUserCommand
+      message:
+        oneOf:
+          - $ref: "#/components/messages/CreateUser"
+          - $ref: "#/components/messages/UpdateUser"
+components:
+  messages:
+    UserSignedUp:
+      name: UserSignedUp
+      title: User Signed Up
+      summary: Event emitted when a new user registers
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/UserSignedUpPayload"
+    UserDeleted:
+      name: UserDeleted
+      title: User Deleted
+      summary: Event emitted when a user account is deleted
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/UserDeletedPayload"
+    CreateUser:
+      name: CreateUser
+      title: Create User
+      summary: Command to create a new user
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/CreateUserPayload"
+    UpdateUser:
+      name: UpdateUser
+      title: Update User
+      summary: Command to update an existing user
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/UpdateUserPayload"
+  schemas:
+    UserSignedUpPayload:
+      type: object
+      required:
+        - userId
+        - email
+        - signedUpAt
+      properties:
+        userId:
+          type: string
+          description: Unique identifier for the user
+          example: usr_123abc
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+          example: jane.doe@example.com
+        signedUpAt:
+          type: string
+          format: date-time
+          description: Timestamp when the user signed up
+          example: "2024-01-15T09:30:00Z"
+    UserDeletedPayload:
+      type: object
+      required:
+        - userId
+        - deletedAt
+      properties:
+        userId:
+          type: string
+          description: Unique identifier for the deleted user
+          example: usr_123abc
+        deletedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the user was deleted
+          example: "2024-06-01T12:00:00Z"
+    CreateUserPayload:
+      type: object
+      required:
+        - email
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address for the new user
+          example: john.smith@example.com
+        name:
+          type: string
+          description: Full name of the new user
+          example: John Smith
+    UpdateUserPayload:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+          description: Unique identifier of the user to update
+          example: usr_123abc
+        email:
+          type: string
+          format: email
+          description: Updated email address
+          example: john.new@example.com
+        name:
+          type: string
+          description: Updated full name
+          example: John Smith Jr.

@@ -1,0 +1,32 @@
+asyncapi: "2.6.0"
+info:
+  title: Invalid User Events API
+  # Missing required 'version' field
+servers:
+  production:
+    url: broker.example.com:9092
+    # Missing required 'protocol' field
+    description: Production Kafka broker
+channels:
+  user/signedup:
+    subscribe:
+      operationId: onUserSignedUp
+      message:
+        # $ref pointing to a non-existent message component
+        $ref: "#/components/messages/NonExistentMessage"
+  user/commands:
+    publish:
+      # Duplicate operationId (also used above)
+      operationId: onUserSignedUp
+      message:
+        $ref: "#/components/messages/CreateUser"
+components:
+  messages:
+    CreateUser:
+      contentType: application/json
+      payload:
+        # 'invalidtype' is not a valid JSON Schema type
+        type: invalidtype
+        properties:
+          email:
+            type: string
